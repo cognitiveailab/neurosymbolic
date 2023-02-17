@@ -126,7 +126,7 @@ The code for implementing the agent can be found in [main.py](main.py).
 
 The text game engine (TextWorldExpress) provides gold agents (and gold solution paths) for every generated game.  To generate training data for the T5 agent with the symbolic modules, we run these paths, but inject calls to symbolic modules at specific critical times in the action sequence/solution.  The code for these is in [main.py](main.py), in specific named functions.  For exmaple, for the TextWorld Common Sense (TWC) game, gold data is generated in `runGoldPathsTWC()`. 
 
-Completed raw training data (i.e. prompt->response or input->output or source->target files, depending on which terminology you prefer) that are used for training the T5 sequence-to-sequence model are available at: https://github.com/cognitiveailab/t5-textworldexpress/tree/master/training-data
+Completed raw training data (i.e. prompt->response or input->output or source->target files, depending on which terminology you prefer) that are used for training the T5 sequence-to-sequence model are available at: https://github.com/cognitiveailab/neurosymbolic/tree/master/training-data
 
 **4. I want to see the model results (scores, full action histories):**
 
