@@ -151,7 +151,7 @@ Raw data is available in the same folders.
 
 
 ## Replicating the experiments
-**1. Clone the repository:** **TODO CHANGE REPO NAME**
+**1. Clone the repository:**
 ```bash
 git clone git clone https://github.com/cognitiveailab/neurosymbolic.git
 cd neurosymbolic
