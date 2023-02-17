@@ -93,7 +93,7 @@ This technique can result in a *very large increase in task performance* (in ter
 
 The code for implementing the symbolic modules can be found in [symbolicModule.py](symbolicModule.py).  The code is highly templated, with the goal of making it reusable (i.e. portable into your code), or to make it easy for you to add new symbolic modules into this code base. 
 
-The actual call from the T5 agent to the symbolic module interface is in the T5Agent() function, approximately here: https://github.com/cognitiveailab/t5-textworldexpress/blob/26f9305fbf89661005b26831b49b83ef5f2b2b2f/main.py#L1172 . The code looks like this:
+The actual call from the T5 agent to the symbolic module interface is in the T5Agent() function, approximately here: https://github.com/cognitiveailab/neurosymbolic/blob/caa4dadddf6f107641bab26031b0a964e213cea3/main.py#L1177 . The code looks like this:
 
 ```python
             # Take a step in the environment
@@ -131,15 +131,15 @@ Completed raw training data (i.e. prompt->response or input->output or source->t
 **4. I want to see the model results (scores, full action histories):**
 
 These are available in the following folders:
-- Results without modules (baseline): https://github.com/cognitiveailab/t5-textworldexpress/tree/master/results-nomodule
-- Results with symbolic modules: https://github.com/cognitiveailab/t5-textworldexpress/tree/master/results-withmodule
+- Results without modules (baseline): https://github.com/cognitiveailab/neurosymbolic/tree/master/results-nomodule
+- Results with symbolic modules: https://github.com/cognitiveailab/neurosymbolic/tree/master/results-withmodule
 
 **5. I want to see the tuning results:**
 
 Summaries of results (tuning over number of epochs) are available here: 
 
-- No module (baseline): https://github.com/cognitiveailab/t5-textworldexpress/blob/master/tuning-nomodule/tuning-results-nomodule.txt
-- With symbolic modules: https://github.com/cognitiveailab/t5-textworldexpress/blob/master/tuning-withmodule/tuning-results-withmodule.txt
+- No module (baseline): https://github.com/cognitiveailab/neurosymbolic/blob/master/tuning-nomodule/tuning-results-nomodule.txt
+- With symbolic modules: https://github.com/cognitiveailab/neurosymbolic/blob/master/tuning-withmodule/tuning-results-withmodule.txt
 
 Raw data is available in the same folders. 
 
@@ -153,8 +153,8 @@ Raw data is available in the same folders.
 ## Replicating the experiments
 **1. Clone the repository:** **TODO CHANGE REPO NAME**
 ```bash
-git clone git clone https://github.com/cognitiveailab/t5-textworldexpress.git
-cd t5-textworldexpress
+git clone git clone https://github.com/cognitiveailab/neurosymbolic.git
+cd neurosymbolic
 ```
 
 **2. Install Dependencies:**
