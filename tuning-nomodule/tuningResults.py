@@ -14,7 +14,7 @@ def getScores(filename):
 #   Main
 #
 
-gameNames = ["arithmetic", "mapreader-random", "sorting", "twc"]
+gameNames = ["arithmetic", "mapreader", "sorting", "twc"]
 
 epValues = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 
@@ -31,8 +31,7 @@ for gameName in gameNames:
         avgScore = scoreData['avgScore']
         avgEnvSteps = scoreData['avgEnvSteps']
         numSamples = scoreData['numSamples']
-        
+
         print(str(ep) + "        \t" + "{:.3f}".format(avgScore) + "      \t" + str(numSamples))
 
     print("----------------------------------------------------")
-    

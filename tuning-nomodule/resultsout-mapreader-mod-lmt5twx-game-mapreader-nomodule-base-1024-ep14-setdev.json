@@ -1,7 +1,7 @@
 {
     "setName": "dev",
-    "lm": "t5twx-game-mapreader-random-nomodule-base-1024-ep14",
-    "gameName:": "mapreader-random",
+    "lm": "t5twx-game-mapreader-nomodule-base-1024-ep14",
+    "gameName:": "mapreader",
     "enabledModules": "",
     "scores": [
         1.0,

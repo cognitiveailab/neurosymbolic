@@ -1,13 +1,7 @@
 #!/bin/bash
 
-#deepspeed --num_gpus 4 run_summarization.py \
-#--source_prefix "" \
-#    --model_name_or_path t5-base \
-
-#export CUDA_VISIBLE_DEVICES=3
 export NUMEPOCHS=$1
 
-#deepspeed --num_gpus 4 run_summarization.py \
 python run_summarization.py \
     --model_name_or_path t5-base \
     --do_train \
@@ -21,15 +15,10 @@ python run_summarization.py \
     --predict_with_generate \
     --text_column source \
     --summary_column target \
-    --save_total_limit 1 \
+    --save_strategy epoch \
     --logging_steps 1 \
     --num_train_epochs ${NUMEPOCHS} \
     --max_source_length 1024 \
     --max_target_length 32 \
     --pad_to_max_length=True \
     --ignore_pad_token_for_loss=True \
-
-#    --do_predict \    
-#    --deepspeed ds_config-zero2.json \
-#    --bf16 \
-    

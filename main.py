@@ -73,7 +73,7 @@ def post_process_generation(raw_pred):
 #
 #   Valid action alignment
 #
-def findValidAction(predictions, validActions, lastActions):    
+def findValidAction(predictions, validActions, lastActions):
 
     # Go down the ranked list of LM-generated actions.  If one of them is on the valid action list, choose it.
     for pred in predictions:
@@ -108,7 +108,7 @@ def findValidAction(predictions, validActions, lastActions):
 #
 
 # Initialize a TextWorldExpress environment directly from the API
-def initializeEnv(threadNum, args):    
+def initializeEnv(threadNum, args):
     gameName = args["game_name"]
     gameParams = args["game_params"]
 
@@ -121,28 +121,28 @@ def initializeEnv(threadNum, args):
 #
 # Reset the environment (with a new randomly selected variation)
 #
-def resetWithVariation(env, args, gameFold, seed, generateGoldPath=False):    
+def resetWithVariation(env, args, gameFold, seed, generateGoldPath=False):
     gameName = args["game_name"]
     gameParams = args["game_params"]
-    
+
     env.load(gameName, gameParams)
     _, info = env.reset(seed, gameFold, generateGoldPath=generateGoldPath)    # New TWX API
-    
+
     enabledModules = args["useSymbolicModules"].split(",")
 
     properties = env.getGenerationProperties()
     moduleInterface = SymbolicModuleInterface(enabledModules, properties)
 
-    
+
     return info, moduleInterface
 
 def resetWithVariationTrain(env, args, seed, generateGoldPath=False):
     return resetWithVariation(env, args, "train", seed, generateGoldPath)
 
 def resetWithVariationDev(env, args, seed, generateGoldPath=False):
-    return resetWithVariation(env, args, "dev", seed, generateGoldPath) 
+    return resetWithVariation(env, args, "dev", seed, generateGoldPath)
 
-def resetWithVariationTest(env, args, seed, generateGoldPath=False):    
+def resetWithVariationTest(env, args, seed, generateGoldPath=False):
     return resetWithVariation(env, args, "test", seed, generateGoldPath)
 
 #
@@ -154,8 +154,8 @@ def resetWithVariationTest(env, args, seed, generateGoldPath=False):
 def sanitizeInfo(infoIn, moduleInterface):
     # Convert from py4j.java_collections.JavaList to python list
 
-    #print("SanitizeInfo:" + str(infoIn)    
-    ## PJ: Added 02/17/2023, for API meshing. 
+    #print("SanitizeInfo:" + str(infoIn)
+    ## PJ: Added 02/17/2023, for API meshing.
     # If no 'lastActionStr', then this is the first observation.  Set it to the empty string.
     if ('lastActionStr' not in infoIn):
         infoIn['lastActionStr'] = ""
@@ -168,12 +168,12 @@ def sanitizeInfo(infoIn, moduleInterface):
     # Add any valid actions from the module
     validActions.extend(moduleInterface.getValidCommands())
 
-    # Bug: Reward is currently missing from TextWorldExpress in the first observation. 
+    # Bug: Reward is currently missing from TextWorldExpress in the first observation.
     reward = 0
     if ('reward' in infoIn):
         reward = infoIn['reward']
 
-    # Set isDone = True if either success or failure conditions are set. 
+    # Set isDone = True if either success or failure conditions are set.
     isDone = False
     if ((infoIn['tasksuccess'] == True) or (infoIn['taskfailure'] == True)):
         isDone = True
@@ -184,13 +184,13 @@ def sanitizeInfo(infoIn, moduleInterface):
         moduleCommand = infoIn['moduleCommand']
 
     # TextWorldExpress
-    info = {'obs': infoIn['observation'],            
+    info = {'obs': infoIn['observation'],
             'moves': 0, # Not currently supported
             'reward': reward,
             'score': infoIn['score'],
             'look': infoIn['look'],
-            'inv': infoIn['inventory'],            
-            'valid': validActions,            
+            'inv': infoIn['inventory'],
+            'valid': validActions,
             'done': isDone,
             'taskDescription': infoIn['taskDescription'],
             'taskDesc': infoIn['taskDescription'],              # Two different keys this information sometimes appears as
@@ -218,7 +218,7 @@ def addModuleResultToInfo(infoIn, moduleResult, moduleCommand):
 # This is specific to the 'Artihmetic' game
 def runGoldPathsArithmetic(args):
     # Initialize the environment
-    env = initializeEnv(threadNum=2, args=args)    
+    env = initializeEnv(threadNum=2, args=args)
 
     # Pick which set to build gold paths from
     variations = []
@@ -248,20 +248,20 @@ def runGoldPathsArithmetic(args):
     for variationIdx in variations:
         print("Resetting with variation " + str(variationIdx))
 
-        
+
         info = None
         moduleInterface = None
         # Reset with this new variation(seed), based on the set
         if (args["set"] == "train"):
-            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)            
+            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "dev"):
             info, moduleInterface = resetWithVariationDev(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "test"):
             info, moduleInterface = resetWithVariationTest(env, args, variationIdx, generateGoldPath=True)
         else:
             print("ERROR: Unrecognized set to evaluate on (" + str(args["set"]) + ")")
-            exit(1)        
-        info = sanitizeInfo(info, moduleInterface) 
+            exit(1)
+        info = sanitizeInfo(info, moduleInterface)
 
         # Get gold path
         goldPath = env.getGoldActionSequence()
@@ -286,7 +286,7 @@ def runGoldPathsArithmetic(args):
             elif (calcOp == 3):
                 calcOp = 'div'
                 calcAction = calcOp + " " + str(num1) + " " + str(num2)
-            else:   
+            else:
                 print("ERROR: Unrecognized calcOp (" + str(calcOp) + ")")
                 exit(1)
 
@@ -294,18 +294,18 @@ def runGoldPathsArithmetic(args):
             goldPath.insert(3, calcAction)
 
             print("New gold action sequence: " + str(goldPath))
-        
+
 
 
         task_description = ""   # TODO: Currently no task description
-        lastRawInfo = info        
+        lastRawInfo = info
         score = 0.0
         step = 0
 
         history = []
 
         # Save initial observation
-        info['stepsSinceLastReset'] = step                
+        info['stepsSinceLastReset'] = step
         history.append(info.copy())
 
         # Run each action in the gold path
@@ -326,19 +326,19 @@ def runGoldPathsArithmetic(args):
 
             else:
                 # Command was not intended for symbolic module -- run environment
-                info = env.step(actionToTake)
-                lastRawInfo = info            
+                _, _, _, info = env.step(actionToTake)
+                lastRawInfo = info
 
             # TODO: Give observations to moduleInterface
 
             info = sanitizeInfo(info, moduleInterface)
             obs = info['obs']
             reward = info['reward']
-            done = info['done']                
+            done = info['done']
             score = info['score']
 
             # Save history
-            info['stepsSinceLastReset'] = step                
+            info['stepsSinceLastReset'] = step
             history.append(info.copy())
 
             print("Obs: " + obs)
@@ -360,13 +360,13 @@ def runGoldPathsArithmetic(args):
 
         histories.append(runHistory)
 
-        # TODO: Check that score is 1.0 
+        # TODO: Check that score is 1.0
         if (score < 1.0):
             warningStr = "WARNING: Score for this variation (" + str(variationIdx) + ") is less than 1.0.  This may be an error in the gold path."
             print(warningStr)
             errors.append(warningStr)
 
-        print("Run completed...")        
+        print("Run completed...")
 
     # If there were any warnings/errors, print these out at the end so they're easily visible to the user
     if (len(errors) > 0):
@@ -381,7 +381,7 @@ def runGoldPathsArithmetic(args):
 # This is specific to the 'MapReader' game
 def runGoldPathsMapReader(args):
     # Initialize the environment
-    env = initializeEnv(threadNum=2, args=args)    
+    env = initializeEnv(threadNum=2, args=args)
 
     # Pick which set to build gold paths from
     variations = []
@@ -411,25 +411,25 @@ def runGoldPathsMapReader(args):
     for variationIdx in variations:
         print("Resetting with variation " + str(variationIdx))
 
-        
+
         info = None
         moduleInterface = None
         # Reset with this new variation(seed), based on the set
         if (args["set"] == "train"):
-            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)            
+            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "dev"):
             info, moduleInterface = resetWithVariationDev(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "test"):
             info, moduleInterface = resetWithVariationTest(env, args, variationIdx, generateGoldPath=True)
         else:
             print("ERROR: Unrecognized set to evaluate on (" + str(args["set"]) + ")")
-            exit(1)        
+            exit(1)
         lastRawInfo = info.copy()
         # Give modules initial observations
-        moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])    
+        moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
 
         # Sanitize info, and add in module commands to valid actions
-        info = sanitizeInfo(info, moduleInterface) 
+        info = sanitizeInfo(info, moduleInterface)
 
 
         # Get gold path
@@ -447,10 +447,10 @@ def runGoldPathsMapReader(args):
         print("Start Location: " + startLocation)
 
         # TODO: Add in a map reading gold action(s)
-        if ((args["game_name"].startswith("mapreader")) and ("navigation" in moduleInterface.getEnabledModuleNames())):            
+        if ((args["game_name"].startswith("mapreader")) and ("navigation" in moduleInterface.getEnabledModuleNames())):
 
             # Find the index of the map reading action
-            mapReadingActionIdx = goldPath.index("read map")            
+            mapReadingActionIdx = goldPath.index("read map")
 
             # Insert actions that ask for navigation information (to the task location)
             idx = mapReadingActionIdx + 1
@@ -463,7 +463,7 @@ def runGoldPathsMapReader(args):
                 # If the gold action is not picking up the coin, then it's navigation -- add a navigation module command
                 goldPath.insert(idx, "next step to " + coinLocation)
                 idx += 2
-                
+
 
             # Find the index of the 'take coin' action
             mapReadingActionIdx = goldPath.index("take coin")
@@ -481,17 +481,17 @@ def runGoldPathsMapReader(args):
                 idx += 2
 
             print("New gold action sequence: " + str(goldPath))
-        
 
 
-        #task_description = ""   # TODO: Currently no task description        
+
+        #task_description = ""   # TODO: Currently no task description
         score = 0.0
         step = 0
 
         history = []
 
         # Save initial observation
-        info['stepsSinceLastReset'] = step                
+        info['stepsSinceLastReset'] = step
         history.append(info.copy())
 
         # Run each action in the gold path
@@ -512,21 +512,21 @@ def runGoldPathsMapReader(args):
 
             else:
                 # Command was not intended for symbolic module -- run environment
-                info = env.step(actionToTake)
-                lastRawInfo = info            
+                _, _, _, info = env.step(actionToTake)
+                lastRawInfo = info
 
-            # Give modules new observations    
+            # Give modules new observations
             moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
 
             # Sanitize info, and add in module commands to valid actions
             info = sanitizeInfo(info, moduleInterface)
             obs = info['obs']
             reward = info['reward']
-            done = info['done']                
+            done = info['done']
             score = info['score']
 
             # Save history
-            info['stepsSinceLastReset'] = step                
+            info['stepsSinceLastReset'] = step
             history.append(info.copy())
 
             print("Obs: " + obs)
@@ -548,13 +548,13 @@ def runGoldPathsMapReader(args):
 
         histories.append(runHistory)
 
-        # TODO: Check that score is 1.0 
+        # TODO: Check that score is 1.0
         if (score < 1.0):
             warningStr = "WARNING: Score for this variation (" + str(variationIdx) + ") is less than 1.0.  This may be an error in the gold path."
             print(warningStr)
             errors.append(warningStr)
 
-        print("Run completed...")        
+        print("Run completed...")
 
     # If there were any warnings/errors, print these out at the end so they're easily visible to the user
     if (len(errors) > 0):
@@ -570,7 +570,7 @@ def runGoldPathsMapReader(args):
 # This is specific to the 'Sorting' game
 def runGoldPathsSorting(args):
     # Initialize the environment
-    env = initializeEnv(threadNum=2, args=args)    
+    env = initializeEnv(threadNum=2, args=args)
 
     # Pick which set to build gold paths from
     variations = []
@@ -600,26 +600,26 @@ def runGoldPathsSorting(args):
     for variationIdx in variations:
         print("Resetting with variation " + str(variationIdx))
 
-        
+
         info = None
         moduleInterface = None
         # Reset with this new variation(seed), based on the set
         if (args["set"] == "train"):
-            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)            
+            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "dev"):
             info, moduleInterface = resetWithVariationDev(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "test"):
             info, moduleInterface = resetWithVariationTest(env, args, variationIdx, generateGoldPath=True)
         else:
             print("ERROR: Unrecognized set to evaluate on (" + str(args["set"]) + ")")
-            exit(1)        
+            exit(1)
         lastRawInfo = info.copy()
 
-        # Give modules initial observations        
-        moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])    
-        
+        # Give modules initial observations
+        moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
+
         # Sanitize info, and add in module commands to valid actions
-        info = sanitizeInfo(info, moduleInterface) 
+        info = sanitizeInfo(info, moduleInterface)
 
 
         # Get gold path
@@ -630,13 +630,13 @@ def runGoldPathsSorting(args):
         taskDescription = env.getTaskDescription()
 
         # Add in calls to sorting module to gold action sequence
-        if ((args["game_name"] == "sorting") and ("sortquantity" in moduleInterface.getEnabledModuleNames())):            
+        if ((args["game_name"] == "sorting") and ("sortquantity" in moduleInterface.getEnabledModuleNames())):
 
             # Essentially here, we're just inserting a 'sort ascending' module call before each 'take/put' pick-and-place action sequence.
             goldPathOut = []
             for action in goldPath:
                 if (action.lower().startswith("take")):
-                    # Insert 'sort' actio before take                    
+                    # Insert 'sort' actio before take
                     goldPathOut.append("sort ascending")
                     goldPathOut.append(action)
                 else:
@@ -645,17 +645,17 @@ def runGoldPathsSorting(args):
             goldPath = goldPathOut
 
             print("New gold action sequence: " + str(goldPath))
-        
 
 
-        #task_description = ""   # TODO: Currently no task description        
+
+        #task_description = ""   # TODO: Currently no task description
         score = 0.0
         step = 0
 
         history = []
 
         # Save initial observation
-        info['stepsSinceLastReset'] = step                
+        info['stepsSinceLastReset'] = step
         history.append(info.copy())
 
         # Run each action in the gold path
@@ -676,21 +676,21 @@ def runGoldPathsSorting(args):
 
             else:
                 # Command was not intended for symbolic module -- run environment
-                info = env.step(actionToTake)
+                _, _, _, info = env.step(actionToTake)
                 lastRawInfo = info.copy()
 
-            # Give modules new observations    
+            # Give modules new observations
             moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
 
             # Sanitize info, and add in module commands to valid actions
             info = sanitizeInfo(info, moduleInterface)
             obs = info['obs']
             reward = info['reward']
-            done = info['done']                
+            done = info['done']
             score = info['score']
 
             # Save history
-            info['stepsSinceLastReset'] = step                
+            info['stepsSinceLastReset'] = step
             history.append(info.copy())
 
             print("Obs: " + obs)
@@ -712,13 +712,13 @@ def runGoldPathsSorting(args):
 
         histories.append(runHistory)
 
-        # TODO: Check that score is 1.0 
+        # TODO: Check that score is 1.0
         if (score < 1.0):
             warningStr = "WARNING: Score for this variation (" + str(variationIdx) + ") is less than 1.0.  This may be an error in the gold path."
             print(warningStr)
             errors.append(warningStr)
 
-        print("Run completed...")        
+        print("Run completed...")
 
     # If there were any warnings/errors, print these out at the end so they're easily visible to the user
     if (len(errors) > 0):
@@ -733,7 +733,7 @@ def runGoldPathsSorting(args):
 # This is specific to the 'TWC' game
 def runGoldPathsTWC(args):
     # Initialize the environment
-    env = initializeEnv(threadNum=2, args=args)    
+    env = initializeEnv(threadNum=2, args=args)
 
     # Pick which set to build gold paths from
     variations = []
@@ -763,26 +763,26 @@ def runGoldPathsTWC(args):
     for variationIdx in variations:
         print("Resetting with variation " + str(variationIdx))
 
-        
+
         info = None
         moduleInterface = None
         # Reset with this new variation(seed), based on the set
         if (args["set"] == "train"):
-            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)            
+            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "dev"):
             info, moduleInterface = resetWithVariationDev(env, args, variationIdx, generateGoldPath=True)
         elif (args["set"] == "test"):
             info, moduleInterface = resetWithVariationTest(env, args, variationIdx, generateGoldPath=True)
         else:
             print("ERROR: Unrecognized set to evaluate on (" + str(args["set"]) + ")")
-            exit(1)        
+            exit(1)
         lastRawInfo = info.copy()
 
-        # Give modules initial observations        
-        moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])    
-        
+        # Give modules initial observations
+        moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
+
         # Sanitize info, and add in module commands to valid actions
-        info = sanitizeInfo(info, moduleInterface) 
+        info = sanitizeInfo(info, moduleInterface)
 
 
         # Get gold path
@@ -793,7 +793,7 @@ def runGoldPathsTWC(args):
         taskDescription = env.getTaskDescription()
 
         # Add in KB lookup actions to gold path
-        if ((args["game_name"] == "twc") and ("kb-twc" in moduleInterface.getEnabledModuleNames())):            
+        if ((args["game_name"] == "twc") and ("kb-twc" in moduleInterface.getEnabledModuleNames())):
 
             # Essentially here, we're just inserting a 'sort ascending' module call before each 'take/put' pick-and-place action sequence.
             goldPathOut = []
@@ -802,21 +802,21 @@ def runGoldPathsTWC(args):
                 if (action.lower().startswith("take")):
                     # Insert a KB lookup for the item location after the 'take'
                     itemName = action[len("take "):].strip()
-                    goldPathOut.append("query " + itemName)                    
+                    goldPathOut.append("query " + itemName)
 
             goldPath = goldPathOut
 
             print("New gold action sequence: " + str(goldPath))
-        
 
-        #task_description = ""   # TODO: Currently no task description        
+
+        #task_description = ""   # TODO: Currently no task description
         score = 0.0
         step = 0
 
         history = []
 
         # Save initial observation
-        info['stepsSinceLastReset'] = step                
+        info['stepsSinceLastReset'] = step
         history.append(info.copy())
 
         # Run each action in the gold path
@@ -837,21 +837,21 @@ def runGoldPathsTWC(args):
 
             else:
                 # Command was not intended for symbolic module -- run environment
-                info = env.step(actionToTake)
+                _, _, _, info = env.step(actionToTake)
                 lastRawInfo = info.copy()
 
-            # Give modules new observations    
+            # Give modules new observations
             moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
 
             # Sanitize info, and add in module commands to valid actions
             info = sanitizeInfo(info, moduleInterface)
             obs = info['obs']
             reward = info['reward']
-            done = info['done']                
+            done = info['done']
             score = info['score']
 
             # Save history
-            info['stepsSinceLastReset'] = step                
+            info['stepsSinceLastReset'] = step
             history.append(info.copy())
 
             print("Obs: " + obs)
@@ -873,13 +873,13 @@ def runGoldPathsTWC(args):
 
         histories.append(runHistory)
 
-        # TODO: Check that score is 1.0 
+        # TODO: Check that score is 1.0
         if (score < 1.0):
             warningStr = "WARNING: Score for this variation (" + str(variationIdx) + ") is less than 1.0.  This may be an error in the gold path."
             print(warningStr)
             errors.append(warningStr)
 
-        print("Run completed...")        
+        print("Run completed...")
 
     # If there were any warnings/errors, print these out at the end so they're easily visible to the user
     if (len(errors) > 0):
@@ -906,18 +906,18 @@ def mkSourceTargetStrsFromHistory(oneHistory, args):
         look = historyStep['look']
         inv = historyStep['inv']
         score = historyStep['score']
-        
+
         # Previous observation
         prev_obs = ""
         if (stepNum > 0):
-            prev_obs = history[stepNum-1]['obs']                        
+            prev_obs = history[stepNum-1]['obs']
 
         # Previous action -- note, could be either proper action or module command (either one could be populated)
         prev_action = historyStep['lastActionStr']
         if (len(prev_action) < 1):
-            if ('moduleCommand' in historyStep):                    
+            if ('moduleCommand' in historyStep):
                 prev_action = historyStep['moduleCommand']
-        
+
         # Generate source string
         sourceStr = ""
         if (args["mode"] == "bc"):
@@ -930,13 +930,13 @@ def mkSourceTargetStrsFromHistory(oneHistory, args):
             print("Unknown mode: " + str(args["mode"]))
             exit(1)
 
-        # Generate target string (the next action the agent should choose)                
+        # Generate target string (the next action the agent should choose)
         targetStr = "completed"
         if (stepNum < len(history) - 1):
             targetStr = history[stepNum+1]['lastActionStr']
-            # NOTE: If the last action is blank, then it was likely a module command -- use the module command instead, if it exists. 
+            # NOTE: If the last action is blank, then it was likely a module command -- use the module command instead, if it exists.
             if (len(targetStr) < 1):
-                if ('moduleCommand' in history[stepNum+1]):                    
+                if ('moduleCommand' in history[stepNum+1]):
                     targetStr = history[stepNum+1]['moduleCommand']
 
         # Pack
@@ -947,7 +947,7 @@ def mkSourceTargetStrsFromHistory(oneHistory, args):
 
         # Store
         out.append(packed)
-    
+
     # Return the history converted to source/target strings
     return out
 
@@ -1000,7 +1000,7 @@ def T5Agent(args):
     enabledModules = args["useSymbolicModules"]
     lm = args["lm_path"]
     setName = args["set"]
-    verboseFilenameOut = "resultsout-" + gameName + "-mod" + enabledModules + str(enabledModules) + "-lm" + str(lm) + "-set" + setName + ".json"
+    verboseFilenameOut = "resultsout-" + gameName + "-mod" + enabledModules + str(enabledModules) + "-lm" + str(lm).replace("/", "_") + "-set" + setName + ".json"
 
     # Initialize the environment
     env = initializeEnv(threadNum=3, args=args)
@@ -1015,7 +1015,7 @@ def T5Agent(args):
     device_map = {i: list(range(i*layers_per_device, min((i+1)*layers_per_device, num_layers))) for i in range(mp_size)}
     print("Device map: ")
     print(device_map)
-    
+
 
     # device_map = {0: [0, 1, 2, 3, 4, 5, 6, 7],
     #               1: [8, 9, 10, 11, 12, 13, 14, 15],
@@ -1037,7 +1037,7 @@ def T5Agent(args):
         exit(1)
 
     # History saver
-    bufferedHistorySaver = BufferedHistorySaver(filenameOutPrefix = args["historySavePrefix"] + "-game" + str(args["game_name"]) + "-lm" + str(lm) + "-" + str(args["set"]))
+    bufferedHistorySaver = BufferedHistorySaver(filenameOutPrefix = args["historySavePrefix"] + "-game" + str(args["game_name"]) + "-lm" + str(lm).replace("/", "_") + "-" + str(args["set"]))
 
     # Log output prefix
     if (len(args["output_path"]) > 0):
@@ -1066,12 +1066,12 @@ def T5Agent(args):
 
 
     for variationIdx in variations:
-        
+
         # Reset with this new variation(seed), based on the set
         obs = ""
         moduleInterface = None
         if (args["set"] == "train"):
-            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx)            
+            info, moduleInterface = resetWithVariationTrain(env, args, variationIdx)
         elif (args["set"] == "dev"):
             info, moduleInterface = resetWithVariationDev(env, args, variationIdx)
         elif (args["set"] == "test"):
@@ -1083,18 +1083,18 @@ def T5Agent(args):
         # Give modules initial observations
         print(type(info))
         print(info)
-        
 
-        moduleInterface.giveEnvironmentStatus(info['observation'], info['inventory'], info['look'])            
+
+        moduleInterface.giveEnvironmentStatus(info['observation'], info['inventory'], info['look'])
         # Sanitize info, and add in module commands to valid actions
         lastRawInfo = info          # lastRawInfo should be unsanitized version?
-        info = sanitizeInfo(info, moduleInterface) 
+        info = sanitizeInfo(info, moduleInterface)
 
         task_description = info['taskDescription']
         prev_obs = ''
         prev_action = ''
 
-        
+
 
         done = False
         score = 0.0
@@ -1109,12 +1109,12 @@ def T5Agent(args):
         history = []
 
         # Save initial observation
-        info['stepsSinceLastReset'] = step                
+        info['stepsSinceLastReset'] = step
         history.append(info.copy())
 
         # Trying to set this up to match what the histories look like when they're saved, so the source->target between train/eval look identical.
-        obs = info['obs']        
-        done = info['done']                
+        obs = info['obs']
+        done = info['done']
         score = info['score']
         prev_obs = obs              # This looks like a bug in the training code (that sets prev_obs to the same value as obs for the first iteration) -- but repeating it here.
         prev_action = ""
@@ -1186,24 +1186,23 @@ def T5Agent(args):
 
             else:
                 # Command was not intended for symbolic module -- run environment
-                #info = env.step(actionToTake) # Old API
-                _, _, _, info = env.step(actionToTake) # New API -- now returns a tuple                
-                lastRawInfo = info            
+                _, _, _, info = env.step(actionToTake) # New API -- now returns a tuple
+                lastRawInfo = info
 
             # Give modules observations from environment
             #print("lastRawInfo:")
             #print(lastRawInfo)
-            moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])    
+            moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
             # Sanitize info, and add in module commands to valid actions
-            info = sanitizeInfo(info, moduleInterface) 
+            info = sanitizeInfo(info, moduleInterface)
 
             # Store last observation/action
             prev_obs = obs
-            
+
 
             obs = info['obs']
             reward = info['reward']
-            done = info['done']                
+            done = info['done']
             score = info['score']
 
             #obs, reward, done, info = env.step(action)
@@ -1213,7 +1212,7 @@ def T5Agent(args):
             #    score = 0
 
             # Save history
-            info['stepsSinceLastReset'] = step                
+            info['stepsSinceLastReset'] = step
             history.append(info.copy())
 
 
@@ -1225,10 +1224,10 @@ def T5Agent(args):
             if (step >= max_steps):
                 print("Maximum steps exceeded (" + str(step) + ").")
                 break
-            if done:                
+            if done:
                 print("Received 'done' signal from environment.")
                 break
-            
+
             lastNActions.append(actionToTake)
             if (len(lastNActions) > 3):
                 lastNActions = lastNActions[-4:]
@@ -1275,7 +1274,7 @@ def T5Agent(args):
         print("Steps (Env): " + str(totalEnvSteps))
         print("Steps (Mod): " + str(totalModuleSteps))
         time.sleep(2)
-    
+
     # Episodes are finished -- manually save any last histories still in the buffer
     bufferedHistorySaver.saveRunHistoriesBufferIfFull(maxPerFile=args["maxHistoriesPerFile"], forceSave=True)
 
@@ -1305,9 +1304,9 @@ def T5Agent(args):
         'avgSteps': avgSteps,
         'avgEnvSteps': avgEnvSteps,
         'avgModSteps': avgModSteps,
-        'numSamples': len(scores),        
+        'numSamples': len(scores),
     }
-    
+
     print("Saving " + str(verboseFilenameOut))
     with open(verboseFilenameOut, "w") as write_file:
         json.dump(scoresPacked, write_file, indent=4)
@@ -1331,7 +1330,7 @@ def parse_args():
     parser.add_argument("--mode", default="bc")
     parser.add_argument("--set", default="dev")
     parser.add_argument("--output_path", default="")
-    parser.add_argument("--model_parallelism_size", type=int, default=1)    # the number of GPUs. 
+    parser.add_argument("--model_parallelism_size", type=int, default=1)    # the number of GPUs.
 
     parser.add_argument('--historySavePrefix', default='t5saveout', type=str)
     parser.add_argument('--maxHistoriesPerFile', default=1000, type=int)
@@ -1342,13 +1341,13 @@ def parse_args():
     # TextWorldExpress
     parser.add_argument("--jar_path", type=str,
                         help="Path to the TextWorldExpress jar file. Default: use builtin.")
-    parser.add_argument("--game_name", type=str, choices=['cookingworld', 'coin', 'twc', 'mapreader', 'mapreader-random', 'arithmetic', 'takethisaction', 'sorting', 'simonsays', 'twc-easy'], default='arithmetic',
+    parser.add_argument("--game_name", type=str, choices=['arithmetic', 'twc', 'mapreader', 'sorting', 'twc-easy'], default='arithmetic',
                         help="Specify the game to play. Default: %(default)s")
     parser.add_argument("--game_params", type=str, default='',
                         help="TODO: This currently is not supported")
 
 
-    # Mode select: Training data generation, OR running the model. 
+    # Mode select: Training data generation, OR running the model.
     parser.add_argument("--train_or_eval", type=str, choices=['train-gen', 'eval'], default='eval',
                         help="Specify whether to generate training data, evaluate the model. Default: %(default)s")
 
@@ -1364,7 +1363,7 @@ def parse_args():
     if (params['game_name'] == "twc-easy"):
         params['game_name'] = "twc"
         paramStr = "numLocations=1,numItemsToPutAway=1,includeDoors=0,limitInventorySize=0"     # Equivalent of TWC-Easy
-        params['game_params'] = paramStr    
+        params['game_params'] = paramStr
 
     return params
 
