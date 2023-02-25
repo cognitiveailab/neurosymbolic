@@ -14,7 +14,7 @@ def getScores(filename):
 #   Main
 #
 
-gameNames = ["arithmetic", "mapreader-random", "sorting", "twc"]
+gameNames = ["arithmetic", "mapreader", "sorting", "twc"]
 
 epValues = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 
@@ -28,7 +28,7 @@ for gameName in gameNames:
         filename = ""
         if (gameName == "arithmetic"):
             filename = "resultsout-" + gameName + "-modcalccalc-lmt5twx-game-" + gameName + "-withcalcmodule-base-1024-ep" + str(ep) + "-setdev.json"
-        elif (gameName == "mapreader-random"):
+        elif (gameName == "mapreader"):
             filename = "resultsout-" + gameName + "-modnavigationnavigation-lmt5twx-game-" + gameName + "-withnavmodule-base-1024-ep" + str(ep) + "-setdev.json"
         elif (gameName == "sorting"):
             filename = "resultsout-" + gameName + "-modsortquantitysortquantity-lmt5twx-game-" + gameName + "-withsortmodule-base-1024-ep" + str(ep) + "-setdev.json"
@@ -41,7 +41,7 @@ for gameName in gameNames:
         avgScore = scoreData['avgScore']
         avgEnvSteps = scoreData['avgEnvSteps']
         numSamples = scoreData['numSamples']
-        
+
         print(str(ep) + "        \t" + "{:.3f}".format(avgScore) + "      \t" + str(numSamples))
 
     print("----------------------------------------------------")

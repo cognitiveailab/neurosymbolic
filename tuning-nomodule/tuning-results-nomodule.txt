@@ -14,7 +14,7 @@ Train Epochs    Score (dev)     NumSamples
 20              0.440           100
 ----------------------------------------------------
 
-mapreader-random
+mapreader
 Train Epochs    Score (dev)     NumSamples
 2               0.445           100
 4               0.520           100

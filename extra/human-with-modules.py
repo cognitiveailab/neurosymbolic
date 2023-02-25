@@ -70,20 +70,20 @@ def userConsole(args):
     #enabledModules = []       # TODO: Read from list
     properties = env.getGenerationProperties()
     moduleInterface = SymbolicModuleInterface(enabledModules, properties)
-    
+
     # Give modules initial observations
-    moduleInterface.giveEnvironmentStatus(info['observation'], info['inventory'], info['look'])    
+    moduleInterface.giveEnvironmentStatus(info['observation'], info['inventory'], info['look'])
 
     # Task description
     print("Task Description: " + env.getTaskDescription())
     print("")
-    
+
     # Take action
-    curIter = 0    
+    curIter = 0
 
     userInputStr = ""
-    print("\nType 'exit' to quit.\n")    
-    
+    print("\nType 'exit' to quit.\n")
+
     while (userInputStr not in exitCommands):
 
         # Select a random action
@@ -102,7 +102,7 @@ def userConsole(args):
         if (info['taskfailure'] == True):
             print("Task Failure!")
 
-            
+
 
         # Get user input
         #if prompt_toolkit_available:
@@ -119,7 +119,6 @@ def userConsole(args):
         userInputStr = userInputStr.lower().strip()
 
         # Take action
-        #obs = env.step(userInputStr)
 
         # First, check to see if the command is intended for a module
         moduleWasRun, moduleResult = moduleInterface.runCommand(userInputStr)
@@ -134,11 +133,11 @@ def userConsole(args):
 
         else:
             # Command was not intended for symbolic module -- run environment
-            info = env.step(userInputStr)
+            _, _, _, info = env.step(userInputStr)
             lastRawInfo = info
 
 
-        # Give modules new observations    
+        # Give modules new observations
         moduleInterface.giveEnvironmentStatus(lastRawInfo['observation'], lastRawInfo['inventory'], lastRawInfo['look'])
 
 
@@ -163,7 +162,7 @@ def parse_args():
     parser = argparse.ArgumentParser(desc)
     parser.add_argument("--jar_path", type=str,
                         help="Path to the ScienceWorld jar file. Default: use builtin.")
-    parser.add_argument("--game-name", type=str, choices=['cookingworld', 'coin', 'twc', 'mapreader', 'arithmetic', 'takethisaction', 'simonsays', 'sorting', 'twc-easy'], default='cookingworld',
+    parser.add_argument("--game-name", type=str, choices=['twc', 'mapreader', 'arithmetic', 'sorting', 'twc-easy'], default='arithmetic',
                         help="Specify the game to play. Default: %(default)s")
     parser.add_argument("--game-fold", type=str, choices=['train', 'dev', 'test'], default='train',
                         help="Specify the game set to use (train, dev, test). Default: %(default)s")
@@ -182,7 +181,7 @@ def parse_args():
     if (params['game_name'] == "twc-easy"):
         params['game_name'] = "twc"
         paramStr = "numLocations=1,numItemsToPutAway=1,includeDoors=0,limitInventorySize=0"     # Equivalent of TWC-Easy
-        params['gameParams'] = paramStr    
+        params['gameParams'] = paramStr
 
 
     return params
