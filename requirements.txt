@@ -5,7 +5,7 @@ torch==1.10.1+cu113
 transformers==4.21.1
 sentencepiece==0.1.96
 scienceworld
-textworld-express
+textworld-express==1.0.4
 
 evaluate
 datasets >= 1.8.0
